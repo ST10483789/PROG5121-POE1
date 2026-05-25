@@ -1,106 +1,167 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
 package com.mycompany.poe;
+
 import javax.swing.JOptionPane;
+import java.util.Random;
+
 
 /**
  *
  * @author Student
  */
-public class POE {
 
+public class POE {
     public String username;
     public String password;
+    public String cellphone;
+
     public boolean isLoggedIn = false;
 
+    // Username check
     public boolean checkUserName() {
-        boolean hasUnderscore = username.contains("_");
-        return hasUnderscore && username.length() <= 5;
+
+        return username.contains("_") && username.length() >= 5;
     }
 
-    //PASSWORD
+    // Password check
     public boolean checkPasswordComplexity(String password) {
-        boolean hasUpper = false;
+
+        boolean hasCapital = false;
         boolean hasNumber = false;
         boolean hasSpecial = false;
 
-        String special = "!@#$%^&*()";
+        String special = "!@#$%^&*";
 
         for (int i = 0; i < password.length(); i++) {
+
             char ch = password.charAt(i);
 
             if (Character.isUpperCase(ch)) {
-                hasUpper = true;
+                hasCapital = true;
             }
+
             if (Character.isDigit(ch)) {
                 hasNumber = true;
             }
-            if (special.contains("" + ch)) {
+
+            if (special.contains(String.valueOf(ch))) {
                 hasSpecial = true;
             }
         }
 
-        return password.length() >= 8 && hasUpper && hasNumber && hasSpecial;
+        return password.length() >= 8 &&
+                hasCapital &&
+                hasNumber &&
+                hasSpecial;
     }
 
-    //CELLPHONE
-    public boolean checkCellPhoneNumber(String phone) {
-        return phone.startsWith("+27") && phone.length() <= 13;
+    // Cell number check
+    public boolean checkCellPhoneNumber(String number) {
+
+        return number.startsWith("+27") &&
+                number.length() <= 12;
     }
 
-    //REGISTER USER
-    public String registerUser() {
+    // Register user
+    public void registerUser() {
 
         username = JOptionPane.showInputDialog("Enter username:");
-        if (!checkUserName()) {
-            return "Username is not correctly formatted; please ensure it contains an underscore and is no more than 5 characters.";
+
+        while (!checkUserName()) {
+
+            JOptionPane.showMessageDialog(null,
+                    "Username incorrectly formatted.");
+
+            username = JOptionPane.showInputDialog("Enter username again:");
         }
 
         password = JOptionPane.showInputDialog("Enter password:");
-        if (!checkPasswordComplexity(password)) {
-            return "Password is not correctly formatted; please ensure it has at least 8 characters, a capital letter, a number and a special character.";
+
+        while (!checkPasswordComplexity(password)) {
+
+            JOptionPane.showMessageDialog(null,
+                    "Password incorrectly formatted.");
+
+            password = JOptionPane.showInputDialog("Enter password again:");
         }
 
-        String phone = JOptionPane.showInputDialog("Enter cellphone number:");
-        if (!checkCellPhoneNumber(phone)) {
-            return "Cell phone number is incorrectly formatted or does not contain international code.";
+        cellphone = JOptionPane.showInputDialog("Enter cellphone number:");
+
+        while (!checkCellPhoneNumber(cellphone)) {
+
+            JOptionPane.showMessageDialog(null,
+                    "Cell phone number incorrectly formatted.");
+
+            cellphone = JOptionPane.showInputDialog("Enter cellphone again:");
         }
 
-        return "User registered successfully.";
+        JOptionPane.showMessageDialog(null,
+                "Registration successful.");
+
+        isLoggedIn = true;
     }
 
-    //LOGIN 
-    public boolean loginUser(String username, String password) {
-        return this.username.equals(username) && this.password.equals(password);
-    }
+    // Login
+    public void login() {
 
-    public String returnLoginStatus(boolean status) {
-        if (status) {
-            return "Welcome " + username + ", it is great to see you again.";
-        } else {
-            return "Username or password incorrect, please try again.";
+        JOptionPane.showMessageDialog(null,
+                "Welcome to QuickChat.");
+
+        int messages = Integer.parseInt(
+                JOptionPane.showInputDialog(
+                        "How many messages would you like to send?"));
+
+        for (int i = 0; i < messages; i++) {
+
+            Message msg = new Message();
+
+            msg.messageNumber = i;
+
+            msg.generateMessageID();
+
+            JOptionPane.showMessageDialog(null,
+                    "Message ID generated: " + msg.messageID);
+
+            msg.recipient = JOptionPane.showInputDialog(
+                    "Enter recipient number:");
+
+            JOptionPane.showMessageDialog(null,
+                    msg.checkRecipientCell());
+
+            msg.messageText = JOptionPane.showInputDialog(
+                    "Enter message:");
+
+            JOptionPane.showMessageDialog(null,
+                    msg.checkMessageLength());
+
+            msg.createMessageHash();
+
+            JOptionPane.showMessageDialog(null,
+                    "Message Hash: " + msg.messageHash);
+
+            JOptionPane.showMessageDialog(null,
+                    msg.sentMessage());
+
+            JOptionPane.showMessageDialog(null,
+                    msg.printMessages());
         }
+
+        JOptionPane.showMessageDialog(null,
+                "Total messages sent: " + Message.totalMessages);
     }
 
-    //MAIN
+    // Main method
     public static void main(String[] args) {
 
         POE app = new POE();
 
-        // Register user
-        String message = app.registerUser();
-        JOptionPane.showMessageDialog(null, message);
+        app.registerUser();
 
-        if (message.equals("User registered successfully.")) {
+        if (app.isLoggedIn) {
 
-            String loginUser = JOptionPane.showInputDialog("Enter username:");
-            String loginPass = JOptionPane.showInputDialog("Enter password:");
-
-            boolean status = app.loginUser(loginUser, loginPass);
-
-            JOptionPane.showMessageDialog(null, app.returnLoginStatus(status));
+            app.login();
         }
     }
-}
+} 
